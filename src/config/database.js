@@ -7,7 +7,7 @@ const pool = mysql.createPool({
     connectionLimit: 10,
     host: "localhost",
     user: "root",
-    password: "****",
+    password: "slamdunk1025",
     database: "dsp_rtb",
 });
 
@@ -19,6 +19,21 @@ let ad_db = {};
 ad_db.all = () => {
     return new Promise((resolve, reject) => {
         var sql_query = `SELECT * FROM ad`;
+        pool.query(sql_query, (err, results) => {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(results);
+        });
+    });
+};
+
+/**
+ * Gets all the ads with status true (1) in database `ad`
+ */
+ad_db.statusTrue = () => {
+    return new Promise((resolve, reject) => {
+        var sql_query = `SELECT * FROM ad WHERE status = 1`;
         pool.query(sql_query, (err, results) => {
             if (err) {
                 return reject(err);

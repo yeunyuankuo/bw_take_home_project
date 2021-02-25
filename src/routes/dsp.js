@@ -35,16 +35,43 @@ router.post("/bw_dsp", async (req, res, next) => {
 
     if (valid.error == null) {
         try {
-            let results = await ad_db.highestBidder();
+            let results = await ad_db.statusTrue();
             var bid_floor = emp.bid_floor;
             if (results.length > 0) {
-                var random = utils.getRandomInteger(0, results.length - 1);
-                var highest_bidder = results[random];
-                if (highest_bidder.bidding_cpm < bid_floor) {
+                // random int between (1 to 10) for bid_price calculation
+                var randomInt = utils.getRandomInteger(1, 10);
+
+                // calculate bid_price for all ads in results[] and store in newResults[]
+                var newResults = results.map(function (x) {
+                    var info = {
+                        bid_price: x.bidding_cpm * randomInt,
+                        ad_id: x.ad_id,
+                    };
+                    return info;
+                });
+
+                // find max bid_price from newResults[]
+                var max = utils.findMaxBidPrice(newResults);
+
+                // preserve only the bidders with highest bid_price in highestBidders[]
+                var highestBidders = newResults.filter(function (x) {
+                    return x.bid_price == max;
+                });
+
+                // get a random index to determine which bidder wins the bidding
+                var randomIndex = utils.getRandomInteger(
+                    0,
+                    highestBidders.length - 1
+                );
+                var highest_bidder = highestBidders[randomIndex];
+
+                // return 204 if chosen highest_bidder.bid_price < bid_floor
+                // else return highest_bidder {price, ad_id} as JSON
+                if (highest_bidder.bid_price < bid_floor) {
                     res.sendStatus(204);
                 } else {
                     res.json({
-                        price: highest_bidder.bidding_cpm,
+                        price: highest_bidder.bid_price,
                         ad_id: highest_bidder.ad_id,
                     });
                 }
