@@ -16,7 +16,7 @@ class Utils {
      */
     static findMaxBidPrice(arr) {
         var max = arr[0].bid_price;
-        for (var i = 0; i < arr.length; i++) {
+        for (var i = 1; i < arr.length; i++) {
             if (max < arr[i].bid_price) {
                 max = arr[i].bid_price;
             }
